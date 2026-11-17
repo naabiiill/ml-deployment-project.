@@ -2,14 +2,24 @@
 
 A simple FastAPI application that predicts whether a record indicates heart disease. This is an educational demonstration, not a medical diagnostic tool.
 
-## Tech stack
+## Live Deployment
+
+**Render URL:** https://heart-disease-api-4cyg.onrender.com
+
+**API Documentation (Swagger UI):** https://heart-disease-api-4cyg.onrender.com/docs
+
+**Health Check:** https://heart-disease-api-4cyg.onrender.com/health
+
+## Tech Stack
+
 - FastAPI and Pydantic
 - Scikit-learn Random Forest
 - Joblib model serialization
 - Docker and Docker Compose
 - Uvicorn
 
-## Project structure
+## Project Structure
+
 ```text
 .
 ├── app/
@@ -17,6 +27,7 @@ A simple FastAPI application that predicts whether a record indicates heart dise
 │   ├── main.py
 │   └── schemas.py
 ├── model/
+│   └── heart_model.joblib
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
@@ -24,29 +35,58 @@ A simple FastAPI application that predicts whether a record indicates heart dise
 └── README.md
 ```
 
-## Model training
+## Model Training
+
 The training script downloads a public 303-row Cleveland heart-disease dataset with the 13 requested input features, cleans missing values, converts the diagnosis to a binary target (0 = absence, 1 = presence), trains a Random Forest classifier, and saves it to `model/heart_model.joblib`.
 
-Run locally (Python):
+### Run Locally (Python)
+
+Install dependencies:
+
 ```bash
 pip install -r requirements.txt
+```
+
+Train the model:
+
+```bash
 python train_model.py
+```
+
+Start the API:
+
+```bash
 uvicorn app.main:app --reload
 ```
 
-## Docker
-```bash
-docker-compose build
-docker-compose up
-```
-The Docker build runs `train_model.py`, which creates `model/heart_model.joblib` inside the image. Then open http://localhost:8000/docs.
+Open http://localhost:8000/docs to access the API documentation.
 
-## API endpoints
+## Docker
+
+Build the Docker image:
+
+```bash
+docker compose build
+```
+
+Start the application:
+
+```bash
+docker compose up
+```
+
+Open http://localhost:8000/docs to access the API documentation.
+
+The Docker build runs `train_model.py`, which creates `model/heart_model.joblib` inside the image.
+
+## API Endpoints
+
 - `GET /health` — service and model status
 - `GET /info` — model type and feature names
-- `POST /predict` — returns `{"heart_disease": true}` or `false`
+- `POST /predict` — returns a heart disease prediction
 
-Example request body:
+### Example Request Body
+
 ```json
 {
   "age": 63,
@@ -65,12 +105,26 @@ Example request body:
 }
 ```
 
-## Render deployment
-1. Push this repository to GitHub.
-2. In Render, create a new **Web Service** and connect the repository.
-3. Choose **Docker** as the runtime/environment. Keep the Dockerfile at the repository root.
-4. Deploy. Render will build the image and train the model during the Docker build.
-5. Test `/health`, `/info`, and `/docs` using the generated Render URL.
+### Example Response
+
+```json
+{
+  "heart_disease": true
+}
+```
+
+## Render Deployment
+
+1. Push the repository to GitHub.
+2. Create a new Web Service on Render and connect the GitHub repository.
+3. Choose Docker as the runtime/environment.
+4. Keep the Dockerfile at the repository root.
+5. Select the Free compute plan.
+6. Deploy the application.
+7. Test `/health`, `/info`, and `/docs` using the generated Render URL.
+
+Render builds the Docker image and trains the model during the Docker build.
 
 ## Notes
+
 The dataset is used for an academic demonstration. Predictions are not medical advice and must not be used for clinical decisions.
